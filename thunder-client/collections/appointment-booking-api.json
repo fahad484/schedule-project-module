@@ -1,0 +1,375 @@
+{
+  "clientName": "Thunder Client",
+  "collectionName": "Appointment Booking API",
+  "collectionId": "col_appointment_booking_api",
+  "dateExported": "2026-10-28",
+  "version": "1.1",
+  "folders": [
+    {
+      "_id": "f_auth",
+      "name": "1. Authentication"
+    },
+    {
+      "_id": "f_specialties",
+      "name": "2. Specialties"
+    },
+    {
+      "_id": "f_doctors_public",
+      "name": "3. Doctors (Public Discovery)"
+    },
+    {
+      "_id": "f_doctor_mgmt",
+      "name": "4. Doctor Schedule Management"
+    },
+    {
+      "_id": "f_appointments",
+      "name": "5. Appointments"
+    },
+    {
+      "_id": "f_reviews",
+      "name": "6. Reviews"
+    },
+    {
+      "_id": "f_notifications",
+      "name": "7. Notifications"
+    },
+    {
+      "_id": "f_admin",
+      "name": "8. Admin Governance"
+    }
+  ],
+  "requests": [
+    {
+      "_id": "req_auth_signup",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_auth",
+      "name": "1.1 Sign Up (Patient)",
+      "url": "{{baseUrl}}/api/auth/sign-up",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Alex Patient\",\n  \"email\": \"{{patientEmail}}\",\n  \"password\": \"{{patientPassword}}\",\n  \"role\": \"patient\",\n  \"phone\": \"+1-555-0101\"\n}"
+      }
+    },
+    {
+      "_id": "req_auth_signin_patient",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_auth",
+      "name": "1.2 Sign In (Patient)",
+      "url": "{{baseUrl}}/api/auth/sign-in",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"{{patientEmail}}\",\n  \"password\": \"{{patientPassword}}\"\n}"
+      }
+    },
+    {
+      "_id": "req_auth_signin_doctor",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_auth",
+      "name": "1.3 Sign In (Doctor)",
+      "url": "{{baseUrl}}/api/auth/sign-in",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"{{doctorEmail}}\",\n  \"password\": \"{{doctorPassword}}\"\n}"
+      }
+    },
+    {
+      "_id": "req_auth_signin_admin",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_auth",
+      "name": "1.4 Sign In (Admin)",
+      "url": "{{baseUrl}}/api/auth/sign-in",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+      }
+    },
+    {
+      "_id": "req_auth_session",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_auth",
+      "name": "1.5 Get Current Session",
+      "url": "{{baseUrl}}/api/auth/get-session",
+      "method": "GET"
+    },
+    {
+      "_id": "req_auth_signout",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_auth",
+      "name": "1.6 Sign Out",
+      "url": "{{baseUrl}}/api/auth/sign-out",
+      "method": "POST"
+    },
+    {
+      "_id": "req_specs_list",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_specialties",
+      "name": "2.1 List All Specialties",
+      "url": "{{baseUrl}}/api/v1/specialties",
+      "method": "GET"
+    },
+    {
+      "_id": "req_specs_get",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_specialties",
+      "name": "2.2 Get Specialty By ID",
+      "url": "{{baseUrl}}/api/v1/specialties/{{specialtyId}}",
+      "method": "GET"
+    },
+    {
+      "_id": "req_specs_create",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_specialties",
+      "name": "2.3 Create Specialty (Admin Only)",
+      "url": "{{baseUrl}}/api/v1/specialties",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Neurology\",\n  \"description\": \"Brain and nervous system healthcare\",\n  \"icon\": \"Brain\"\n}"
+      }
+    },
+    {
+      "_id": "req_specs_update",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_specialties",
+      "name": "2.4 Update Specialty (Admin Only)",
+      "url": "{{baseUrl}}/api/v1/specialties/{{specialtyId}}",
+      "method": "PUT",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Cardiology & Vascular Care\",\n  \"description\": \"Comprehensive cardiac and vascular medical support\",\n  \"icon\": \"HeartPulse\"\n}"
+      }
+    },
+    {
+      "_id": "req_docs_search",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctors_public",
+      "name": "3.1 Search Doctors",
+      "url": "{{baseUrl}}/api/v1/doctors?search=&page=1&limit=10",
+      "method": "GET"
+    },
+    {
+      "_id": "req_docs_filter_specialty",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctors_public",
+      "name": "3.2 Filter Doctors by Specialty",
+      "url": "{{baseUrl}}/api/v1/doctors?specialtyId={{specialtyId}}&page=1&limit=10",
+      "method": "GET"
+    },
+    {
+      "_id": "req_docs_get_single",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctors_public",
+      "name": "3.3 Get Doctor Profile By ID",
+      "url": "{{baseUrl}}/api/v1/doctors/{{doctorId}}",
+      "method": "GET"
+    },
+    {
+      "_id": "req_docs_get_availability",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctors_public",
+      "name": "3.4 Get Doctor Weekly Availability",
+      "url": "{{baseUrl}}/api/v1/doctors/{{doctorId}}/availability",
+      "method": "GET"
+    },
+    {
+      "_id": "req_docs_get_slots",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctors_public",
+      "name": "3.5 Query Live Available Slots for Date",
+      "url": "{{baseUrl}}/api/v1/doctors/{{doctorId}}/slots?date=2026-11-05",
+      "method": "GET"
+    },
+    {
+      "_id": "req_docs_get_reviews",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctors_public",
+      "name": "3.6 Get Doctor Reviews",
+      "url": "{{baseUrl}}/api/v1/doctors/{{doctorId}}/reviews?page=1&limit=10",
+      "method": "GET"
+    },
+    {
+      "_id": "req_docmgmt_profile_get",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctor_mgmt",
+      "name": "4.1 Get Authenticated Doctor Profile",
+      "url": "{{baseUrl}}/api/v1/doctors/profile",
+      "method": "GET"
+    },
+    {
+      "_id": "req_docmgmt_profile_update",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctor_mgmt",
+      "name": "4.2 Update Doctor Profile",
+      "url": "{{baseUrl}}/api/v1/doctors/profile",
+      "method": "PUT",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"consultationFee\": 150,\n  \"bio\": \"Senior Cardiologist with 12+ years of surgical experience.\",\n  \"isAcceptingPatients\": true\n}"
+      }
+    },
+    {
+      "_id": "req_docmgmt_avail_add",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_doctor_mgmt",
+      "name": "4.3 Add Availability Shift",
+      "url": "{{baseUrl}}/api/v1/doctors/availability",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"dayOfWeek\": \"monday\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDurationMinutes\": 30\n}"
+      }
+    },
+    {
+      "_id": "req_apts_list",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_appointments",
+      "name": "5.1 List Current User Appointments",
+      "url": "{{baseUrl}}/api/v1/appointments?status=all",
+      "method": "GET"
+    },
+    {
+      "_id": "req_apts_book",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_appointments",
+      "name": "5.2 Book Appointment (Patient)",
+      "url": "{{baseUrl}}/api/v1/appointments",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"doctorId\": \"{{doctorId}}\",\n  \"appointmentDate\": \"2026-11-05\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"09:30\",\n  \"reason\": \"Routine health checkup and consultation\"\n}"
+      }
+    },
+    {
+      "_id": "req_apts_double_booking_test",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_appointments",
+      "name": "5.3 Test Double-Booking Prevention (Expected 409/400)",
+      "url": "{{baseUrl}}/api/v1/appointments",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"doctorId\": \"{{doctorId}}\",\n  \"appointmentDate\": \"2026-11-05\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"09:30\",\n  \"reason\": \"Concurrent collision test request\"\n}"
+      }
+    },
+    {
+      "_id": "req_apts_get_single",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_appointments",
+      "name": "5.4 Get Appointment Details By ID",
+      "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}",
+      "method": "GET"
+    },
+    {
+      "_id": "req_apts_reschedule",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_appointments",
+      "name": "5.5 Reschedule Appointment",
+      "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/reschedule",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"appointmentDate\": \"2026-11-06\",\n  \"startTime\": \"10:00\",\n  \"endTime\": \"10:30\"\n}"
+      }
+    },
+    {
+      "_id": "req_apts_confirm",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_appointments",
+      "name": "5.6 Confirm Appointment (Doctor)",
+      "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/confirm",
+      "method": "POST"
+    },
+    {
+      "_id": "req_apts_complete",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_appointments",
+      "name": "5.7 Complete Appointment (Doctor)",
+      "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/complete",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"notes\": \"Patient examined; prescribed preventive treatment and follow-up in 6 months.\"\n}"
+      }
+    },
+    {
+      "_id": "req_apts_cancel",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_appointments",
+      "name": "5.8 Cancel Appointment",
+      "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/cancel",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"reason\": \"Schedule conflict; requested cancellation\"\n}"
+      }
+    },
+    {
+      "_id": "req_reviews_create",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_reviews",
+      "name": "6.1 Create Review for Completed Appointment",
+      "url": "{{baseUrl}}/api/v1/reviews",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"appointmentId\": \"{{appointmentId}}\",\n  \"rating\": 5,\n  \"comment\": \"Doctor was remarkably attentive and thoroughly explained test results.\"\n}"
+      }
+    },
+    {
+      "_id": "req_notifications_list",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_notifications",
+      "name": "7.1 List User Notifications",
+      "url": "{{baseUrl}}/api/v1/notifications?page=1&limit=20",
+      "method": "GET"
+    },
+    {
+      "_id": "req_notifications_read_all",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_notifications",
+      "name": "7.2 Mark All Notifications As Read",
+      "url": "{{baseUrl}}/api/v1/notifications/read-all",
+      "method": "POST"
+    },
+    {
+      "_id": "req_admin_stats",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_admin",
+      "name": "8.1 Get Platform Governance Stats (Admin)",
+      "url": "{{baseUrl}}/api/v1/admin/stats",
+      "method": "GET"
+    },
+    {
+      "_id": "req_admin_users",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_admin",
+      "name": "8.2 List All Users (Admin)",
+      "url": "{{baseUrl}}/api/v1/admin/users?page=1&limit=10",
+      "method": "GET"
+    },
+    {
+      "_id": "req_admin_update_role",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_admin",
+      "name": "8.3 Update User Role (Admin)",
+      "url": "{{baseUrl}}/api/v1/admin/users/{{patientId}}/role",
+      "method": "PUT",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"role\": \"doctor\"\n}"
+      }
+    },
+    {
+      "_id": "req_admin_appointments",
+      "colId": "col_appointment_booking_api",
+      "containerId": "f_admin",
+      "name": "8.4 List All System Appointments (Admin)",
+      "url": "{{baseUrl}}/api/v1/admin/appointments?page=1&limit=10&status=all",
+      "method": "GET"
+    }
+  ]
+}
