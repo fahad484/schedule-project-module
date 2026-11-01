@@ -1,0 +1,53 @@
+{
+  "clientName": "Thunder Client",
+  "environmentName": "local",
+  "environmentId": "env_local_appointment_booking",
+  "dateExported": "2026-10-28",
+  "version": "1.1",
+  "variables": [
+    {
+      "name": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "name": "patientEmail",
+      "value": "patient.test@example.com"
+    },
+    {
+      "name": "patientPassword",
+      "value": "Password123!"
+    },
+    {
+      "name": "doctorEmail",
+      "value": "dr.smith@example.com"
+    },
+    {
+      "name": "doctorPassword",
+      "value": "DoctorPassword123!"
+    },
+    {
+      "name": "adminEmail",
+      "value": "admin@example.com"
+    },
+    {
+      "name": "adminPassword",
+      "value": "AdminPassword123!"
+    },
+    {
+      "name": "specialtyId",
+      "value": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+    },
+    {
+      "name": "doctorId",
+      "value": "d1a11111-2222-3333-4444-555555555555"
+    },
+    {
+      "name": "appointmentId",
+      "value": "apt_placeholder_id"
+    },
+    {
+      "name": "patientId",
+      "value": "usr_patient_placeholder"
+    }
+  ]
+}
