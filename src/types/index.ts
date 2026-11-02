@@ -86,6 +86,7 @@ export type TimeSlot = {
   start: string;
   end: string;
   isAvailable: boolean;
+  isBooked?: boolean;
 };
 
 // ─── API Response Types ─────────────────────────────────────────────

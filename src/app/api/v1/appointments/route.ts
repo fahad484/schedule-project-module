@@ -47,9 +47,17 @@ export const POST = withErrorHandler(async (req: Request) => {
       ...parsed.data,
     });
     return apiSuccess(booked, 201);
-  } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : "Failed to book appointment";
-    return apiError(message, 400);
-  }
+  // } catch (error: unknown) {
+  //   const message =
+  //     error instanceof Error ? error.message : "Failed to book appointment";
+  //   return apiError(message, 400);
+  // }
+      }catch (error: unknown) {
+      console.error("POST /api/v1/appointments error:", error);
+
+      const message =
+        error instanceof Error ? error.message : "Internal server error";
+
+      return apiError(message, 400);
+    }
 });

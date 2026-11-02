@@ -28,9 +28,26 @@ export default function DashboardPage() {
   const [patientStats, setPatientStats] = React.useState<PatientStats | null>(null);
   const [doctorStats, setDoctorStats] = React.useState<DoctorStats | null>(null);
   const [adminStats, setAdminStats] = React.useState<AdminStats | null>(null);
-  const [recentAppointments, setRecentAppointments] = React.useState<AppointmentWithDetails[]>([]);
+  // const [recentAppointments, setRecentAppointments] = React.useState<AppointmentWithDetails[]>([]);
 
   const userRole = ((session?.user as { role?: string })?.role || "patient").toLowerCase();
+
+    type RecentAppointmentItem = {
+    appointment: {
+      id: string;
+      appointmentDate: string;
+      startTime: string;
+      endTime: string;
+      status: string;
+      reason: string | null;
+    };
+    patientName?: string;
+    doctorName?: string;
+    doctorEmail?: string;
+    specialtyName?: string;
+  };
+
+  const [recentAppointments, setRecentAppointments] = React.useState<RecentAppointmentItem[]>([]);
 
   React.useEffect(() => {
     async function loadDashboardData() {
@@ -70,6 +87,7 @@ export default function DashboardPage() {
 
   console.log("Recent Appointments:", recentAppointments);
   console.log("First Appointment:", recentAppointments?.[0]);
+  
 
   return (
     <div className="space-y-8">
@@ -302,7 +320,7 @@ export default function DashboardPage() {
             </div>
           ) : recentAppointments.length > 0 ? (
             <div className="space-y-3">
-              {recentAppointments.map((app) => (
+              {/* {recentAppointments.map((app) => (
                 <Card key={app.id} className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -328,7 +346,55 @@ export default function DashboardPage() {
                     </Badge>
                   </div>
                 </Card>
-              ))}
+              ))} */}
+              
+              {recentAppointments.map((item) => {
+                const app = item.appointment;
+
+                return (
+                  <Card
+                    key={app.id}
+                    className="p-4 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Calendar className="h-6 w-6" />
+                      </div>
+
+                      <div>
+                        <p className="font-semibold text-sm">
+                          {userRole === "doctor"
+                            ? `Patient: ${item.patientName || "Patient"}`
+                            : `Dr. ${item.doctorName || "Doctor"}`}
+                        </p>
+
+                        <p className="text-xs text-muted-foreground">
+                          {app.appointmentDate || "Date unavailable"}
+                          {" at "}
+                          {app.startTime || "--:--"}
+                          {" - "}
+                          {app.endTime || "--:--"}
+                        </p>
+
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                          Reason: {app.reason || "Not specified"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Badge
+                      variant={
+                        app.status === "confirmed"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {app.status}
+                    </Badge>
+                  </Card>
+                );
+              })}
+
             </div>
           ) : (
             <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed">

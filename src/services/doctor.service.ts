@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { doctorProfile, doctorAvailability, doctorTimeOff, user, specialty } from "@/db/schema";
-import { eq, and, ilike, sql, count } from "drizzle-orm";
+import { doctorProfile, doctorAvailability, doctorTimeOff, user, specialty,appointment } from "@/db/schema";
+import { eq, and, ilike, sql, count, or } from "drizzle-orm";
 import type { DoctorListItem } from "@/types";
 
 export async function getDoctorProfile(userId: string) {
@@ -156,6 +156,30 @@ export async function getDoctorAvailability(doctorId: string) {
       )
     )
     .orderBy(doctorAvailability.dayOfWeek, doctorAvailability.startTime);
+}
+
+// ─── Booked Appointment Slots ───────────────────────────────────────
+
+export async function getDoctorBookedSlots(
+  doctorId: string,
+  selectedDate: string
+) {
+  return db
+    .select({
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+    })
+    .from(appointment)
+    .where(
+      and(
+        eq(appointment.doctorId, doctorId),
+        eq(appointment.appointmentDate, selectedDate),
+        or(
+          eq(appointment.status, "scheduled"),
+          eq(appointment.status, "confirmed")
+        )
+      )
+    );
 }
 
 export async function setDoctorAvailability(

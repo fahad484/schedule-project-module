@@ -1,7 +1,7 @@
 import { requireAuth, apiSuccess, apiError } from "@/lib/server-utils";
 import { markNotificationAsRead } from "@/services/notification.service";
 
-export async function POST(
+export async function PATCH(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
