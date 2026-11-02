@@ -11,6 +11,8 @@ import { eq, and, count, ne, desc, gte, lte, or } from "drizzle-orm";
 import { getDayOfWeek, generateTimeSlots } from "@/lib/utils";
 import type { TimeSlot } from "@/types";
 
+import { notifyAppointmentBooked } from "@/services/notification.service";
+
 /**
  * Get available time slots for a doctor on a specific date.
  * Checks weekly availability, time-offs, and existing appointments.
@@ -76,10 +78,19 @@ export async function getAvailableSlots(
       avail.endTime,
       avail.slotDurationMinutes
     );
+    // for (const slot of slots) {
+    //   allSlots.push({
+    //     ...slot,
+    //     isAvailable: !bookedTimes.has(slot.start),
+    //   });
+    // }
     for (const slot of slots) {
+       const isBooked = bookedTimes.has(slot.start);
+
       allSlots.push({
         ...slot,
-        isAvailable: !bookedTimes.has(slot.start),
+        isBooked,
+        isAvailable: !isBooked,
       });
     }
   }
@@ -187,7 +198,22 @@ export async function bookAppointment(data: {
   // (doctor_id, appointment_date, start_time) prevents double-booking
   // even under concurrent requests
   try {
-    const results = await db
+    // const results = await db
+    //   .insert(appointment)
+    //   .values({
+    //     patientId: data.patientId,
+    //     doctorId: data.doctorId,
+    //     appointmentDate: data.appointmentDate,
+    //     startTime: data.startTime,
+    //     endTime: data.endTime,
+    //     reason: data.reason,
+    //     status: "scheduled",
+    //   })
+    //   .returning();
+
+    // return results[0];
+
+        const results = await db
       .insert(appointment)
       .values({
         patientId: data.patientId,
@@ -200,17 +226,78 @@ export async function bookAppointment(data: {
       })
       .returning();
 
-    return results[0];
-  } catch (error: unknown) {
-    // Handle unique constraint violation (concurrent booking attempt)
-    if (
-      error instanceof Error &&
-      error.message.includes("unique") 
-    ) {
-      throw new Error(
-        "This time slot was just booked by another patient. Please select a different time."
+    const bookedAppointment = results[0];
+
+    // Create notifications after successful appointment booking
+    try {
+      const [patientUser, doctorUser] = await Promise.all([
+        db
+          .select({ name: user.name })
+          .from(user)
+          .where(eq(user.id, data.patientId))
+          .limit(1),
+
+        db
+          .select({ name: user.name })
+          .from(user)
+          .where(eq(user.id, doctor[0].userId))
+          .limit(1),
+      ]);
+
+      await notifyAppointmentBooked(
+        data.patientId,
+        doctor[0].userId,
+        data.appointmentDate,
+        data.startTime,
+        doctorUser[0]?.name ?? "Doctor",
+        patientUser[0]?.name ?? "Patient"
+      );
+    } catch (notificationError) {
+      console.error(
+        "Appointment booked, but notification creation failed:",
+        notificationError
       );
     }
+
+    return bookedAppointment;
+  // } catch (error: unknown) {
+  //   // Handle unique constraint violation (concurrent booking attempt)
+  //   if (
+  //     error instanceof Error &&
+  //     error.message.includes("unique") 
+  //   ) {
+  //     throw new Error(
+  //       "This time slot was just booked by another patient. Please select a different time."
+  //     );
+  //   }
+  //   throw error;
+  // }
+    } catch (error: unknown) {
+    const dbError = error as {
+      code?: string;
+      constraint?: string;
+      cause?: {
+        code?: string;
+        constraint?: string;
+      };
+    };
+
+    const errorCode = dbError.code ?? dbError.cause?.code;
+    const constraint =
+      dbError.constraint ?? dbError.cause?.constraint;
+
+    console.error("Appointment insert failed:", {
+      code: errorCode,
+      constraint,
+      error,
+    });
+
+    if (errorCode === "23505") {
+      throw new Error(
+        "Already booked slot. Please select a different time slot."
+      );
+    }
+
     throw error;
   }
 }

@@ -8,6 +8,13 @@
       "when": 1793188066038,
       "tag": "0000_windy_sage",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793634654157,
+      "tag": "0001_allow_cancelled_slot_rebooking",
+      "breakpoints": true
     }
   ]
 }

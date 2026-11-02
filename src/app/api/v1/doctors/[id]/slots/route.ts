@@ -15,7 +15,15 @@ export async function GET(
     }
 
     const slots = await getAvailableSlots(id, date);
-    return apiSuccess(slots);
+    // return apiSuccess(slots);
+          return Response.json(
+        { success: true, data: slots },
+        {
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          },
+        }
+      );
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Internal server error";

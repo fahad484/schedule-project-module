@@ -422,7 +422,8 @@ export default function DoctorBookingPage() {
                             type="button"
                             size="sm"
                             variant={isSelected ? "default" : "outline"}
-                            disabled={!slot.isAvailable}
+                            // disabled={!slot.isAvailable}
+                            disabled={!slot.isAvailable || slot.isBooked}
                             onClick={() => setSelectedSlot(slot)}
                             className={`h-9 text-xs transition-all ${
                               !slot.isAvailable ? "opacity-40 line-through" : ""
