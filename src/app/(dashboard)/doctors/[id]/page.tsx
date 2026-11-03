@@ -12,7 +12,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Loader2,
-  DollarSign,
+  // DollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatTime, formatDate, getInitials } from "@/lib/utils";
@@ -33,6 +33,15 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { TimeSlot, ReviewWithDetails } from "@/types";
+
+//to display doctor appointment fee in INR
+const formatCurrency = (amount: number | string) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(amount));
 
 type DoctorDetailData = {
   id: string;
@@ -297,9 +306,12 @@ export default function DoctorBookingPage() {
                       <Star className="h-4 w-4 fill-current" />
                       {reviews.length > 0 ? "4.9 (Verified)" : "5.0 Rating"}
                     </span>
-                    <span className="flex items-center gap-1 font-semibold text-foreground">
+                    {/* <span className="flex items-center gap-1 font-semibold text-foreground">
                       <DollarSign className="h-4 w-4 text-primary" />
                       ${Number(doctor.consultationFee).toFixed(2)} / visit
+                    </span> */}
+                    <span className="flex items-center gap-1 font-semibold text-foreground">
+                      {formatCurrency(doctor.consultationFee)} / visit
                     </span>
                   </div>
                 </div>
@@ -462,8 +474,11 @@ export default function DoctorBookingPage() {
                 <div className="rounded-lg bg-muted/50 p-3 space-y-1 text-xs">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Consultation Fee</span>
-                    <span className="font-semibold text-foreground">
+                    {/* <span className="font-semibold text-foreground">
                       ${Number(doctor.consultationFee).toFixed(2)}
+                    </span> */}
+                    <span className="font-semibold text-foreground">
+                      {formatCurrency(doctor.consultationFee)}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -517,8 +532,11 @@ export default function DoctorBookingPage() {
               </div>
               <div className="flex justify-between border-t border-border pt-2">
                 <span className="text-muted-foreground">Fee:</span>
-                <span className="font-bold text-foreground">
+                {/* <span className="font-bold text-foreground">
                   ${Number(doctor.consultationFee).toFixed(2)}
+                </span> */}
+                <span className="font-bold text-foreground">
+                  {formatCurrency(doctor.consultationFee)}
                 </span>
               </div>
             </div>
