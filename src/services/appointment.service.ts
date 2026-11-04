@@ -13,6 +13,10 @@ import type { TimeSlot } from "@/types";
 
 import { notifyAppointmentBooked } from "@/services/notification.service";
 
+
+
+
+
 /**
  * Get available time slots for a doctor on a specific date.
  * Checks weekly availability, time-offs, and existing appointments.
@@ -151,6 +155,8 @@ export async function bookAppointment(data: {
     throw new Error("Doctor is not available on this day");
   }
 
+
+
   // Verify the time slot falls within availability
   const isValidSlot = availabilities.some((avail) => {
     return data.startTime >= avail.startTime && data.endTime <= avail.endTime;
@@ -175,6 +181,11 @@ export async function bookAppointment(data: {
   if (timeOffs.length > 0) {
     throw new Error("Doctor is on leave on this date");
   }
+
+    console.log("Booking doctorId:", data.doctorId);
+    console.log("Appointment date:", appointmentDate);
+    console.log("Calculated weekday:", dayOfWeek);
+    console.log("Availability records:", availabilities);
 
   // Check if patient already has an appointment at this time
   const patientConflict = await db

@@ -1,5 +1,7 @@
 "use client";
 
+import Script from "next/script";
+
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -34,40 +36,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { TimeSlot, ReviewWithDetails } from "@/types";
 
-//to display doctor appointment fee in INR
-const formatCurrency = (amount: number | string) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(amount));
+import { formatCurrency } from "@/lib/utils";
 
-type DoctorDetailData = {
-  id: string;
-  userId: string;
-  specialtyId: string;
-  bio: string | null;
-  qualifications: string | null;
-  experienceYears: number;
-  consultationFee: string;
-  hospitalAffiliation: string | null;
-  isAcceptingPatients: boolean;
-  averageRating?: string | null;
-  totalReviews?: number;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-  };
-  specialty: {
-    id: string;
-    name: string;
-    description: string | null;
-    icon?: string | null;
-  };
-};
+
+
 
 export default function DoctorBookingPage() {
   const params = useParams();
@@ -180,13 +152,73 @@ export default function DoctorBookingPage() {
     setConfirmDialogOpen(true);
   };
 
+  // const handleConfirmBooking = async () => {
+  //   if (!selectedSlot) return;
+  //   setIsSubmitting(true);
+  //   try {
+  //     const res = await fetch("/api/v1/appointments", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         doctorId,
+  //         appointmentDate: selectedDate,
+  //         startTime: selectedSlot.start,
+  //         endTime: selectedSlot.end,
+  //         reason: reason.trim(),
+  //       }),
+  //     });
+
+  //     if (!res.ok) {
+  //       const json = await res.json().catch(() => ({}));
+  //       throw new Error(json.message || json.error || "Failed to book appointment");
+  //     }
+
+  //     toast.success("Appointment booked successfully!");
+  //     setConfirmDialogOpen(false);
+  //     router.push("/appointments");
+  //   } catch (err: unknown) {
+  //     const msg = err instanceof Error ? err.message : "Booking failed";
+  //     toast.error(msg);
+  //     // For demo fallback: simulate successful booking if endpoint not reachable
+  //     if (msg.includes("Failed to fetch") || msg.includes("Internal")) {
+  //       toast.info("Confirmed in demo mode.");
+  //       setConfirmDialogOpen(false);
+  //       router.push("/appointments");
+  //     }
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
   const handleConfirmBooking = async () => {
-    if (!selectedSlot) return;
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("/api/v1/appointments", {
+  // Step 1: Validate selected slot
+  if (!selectedSlot) {
+    toast.error("Please select an available time slot");
+    return;
+  }
+
+  // Step 2: Validate reason
+  if (!reason.trim() || reason.trim().length < 5) {
+    toast.error("Please enter a valid reason for your visit");
+    return;
+  }
+
+  // Step 3: Check Razorpay Checkout has loaded
+  if (!window.Razorpay) {
+    toast.error("Payment gateway is loading. Please try again.");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    // Step 4: Ask our backend to create a Razorpay order
+    const orderResponse = await fetch(
+      "/api/v1/payments/create-order",
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           doctorId,
           appointmentDate: selectedDate,
@@ -194,29 +226,113 @@ export default function DoctorBookingPage() {
           endTime: selectedSlot.end,
           reason: reason.trim(),
         }),
-      });
-
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error(json.message || json.error || "Failed to book appointment");
       }
+    );
 
-      toast.success("Appointment booked successfully!");
-      setConfirmDialogOpen(false);
-      router.push("/appointments");
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Booking failed";
-      toast.error(msg);
-      // For demo fallback: simulate successful booking if endpoint not reachable
-      if (msg.includes("Failed to fetch") || msg.includes("Internal")) {
-        toast.info("Confirmed in demo mode.");
-        setConfirmDialogOpen(false);
-        router.push("/appointments");
-      }
-    } finally {
-      setIsSubmitting(false);
+    const orderData = await orderResponse.json();
+
+    // Step 5: Check whether backend order creation succeeded
+    if (!orderResponse.ok || !orderData.success) {
+      throw new Error(
+        orderData.message || "Unable to create payment order"
+      );
     }
-  };
+
+    // Step 6: Create Razorpay Checkout instance
+    const RazorpayCheckout = window.Razorpay;
+
+    if (!RazorpayCheckout) {
+      throw new Error("Razorpay Checkout is unavailable");
+    }
+
+    const checkout = new RazorpayCheckout({
+      key: orderData.keyId,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      name: "Medrella HealthCare",
+      description: "Doctor Appointment",
+      order_id: orderData.orderId,
+
+      // Step 7: This handler runs after Razorpay Checkout reports success
+      handler: async (paymentResponse) => {
+        try {
+          // Step 8: Send payment details to backend for verification
+          const verifyResponse = await fetch(
+            "/api/v1/payments/verify",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                appointmentId: orderData.appointmentId,
+                razorpay_payment_id:
+                  paymentResponse.razorpay_payment_id,
+                razorpay_order_id:
+                  paymentResponse.razorpay_order_id,
+                razorpay_signature:
+                  paymentResponse.razorpay_signature,
+              }),
+            }
+          );
+
+          const verifyData = await verifyResponse.json();
+
+          // Step 9: Confirm only after server verification
+          if (!verifyResponse.ok || !verifyData.success) {
+            toast.error(
+              "Payment verification is pending. Please contact support."
+            );
+            return;
+          }
+
+          // Step 10: Payment verified and appointment confirmed
+          toast.success("Payment successful! Appointment confirmed.");
+
+          setConfirmDialogOpen(false);
+
+          router.push("/appointments");
+        } catch (error) {
+          console.error("Payment verification error:", error);
+
+          toast.error(
+            "Payment may have succeeded, but verification failed. Please contact support."
+          );
+        } finally {
+          setIsSubmitting(false);
+        }
+      },
+
+      // Step 11: User closes Checkout without completing payment
+      modal: {
+        ondismiss: () => {
+          setIsSubmitting(false);
+
+          toast.info(
+            "Payment cancelled. Your appointment is not confirmed."
+          );
+        },
+      },
+
+      theme: {
+        color: "#0F766E",
+      },
+    });
+
+    // Step 12: Open Razorpay Checkout window
+    checkout.open();
+  } catch (error) {
+    console.error("Booking/payment error:", error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Unable to start payment"
+    );
+
+    setIsSubmitting(false);
+  }
+};
 
   if (loading) {
     return (
@@ -247,7 +363,16 @@ export default function DoctorBookingPage() {
 
   const doctorName = doctor.user?.name || "Doctor";
 
+ 
   return (
+  <>
+    <Script
+      src="https://checkout.razorpay.com/v1/checkout.js"
+      strategy="lazyOnload"
+    />
+
+    <div className="space-y-8">
+      {/* Keep your existing page JSX here */}
     <div className="space-y-8">
       {/* Back button */}
       <div>
@@ -558,17 +683,30 @@ export default function DoctorBookingPage() {
             >
               Cancel
             </Button>
-            <Button
+            {/* <Button
               type="button"
               onClick={handleConfirmBooking}
               disabled={isSubmitting}
             >
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? "Confirming..." : "Confirm Booking"}
+            </Button> */}
+            <Button
+              type="button"
+              onClick={handleConfirmBooking}
+              disabled={isSubmitting}
+>
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+
+              {isSubmitting ? "Processing..." : "Pay & Book Appointment"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
+    </div>
+  </>
+); 
 }

@@ -88,6 +88,33 @@ export function generateTimeSlots(
   return slots;
 }
 
+
+
+
+
+export function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+// export function getDayOfWeek(date: Date | string): string {
+//   const days = [
+//     "sunday",
+//     "monday",
+//     "tuesday",
+//     "wednesday",
+//     "thursday",
+//     "friday",
+//     "saturday",
+//   ];
+//   return days[new Date(date).getDay()];
+// }
+
+
 export function getDayOfWeek(date: Date | string): string {
   const days = [
     "sunday",
@@ -98,14 +125,42 @@ export function getDayOfWeek(date: Date | string): string {
     "friday",
     "saturday",
   ];
-  return days[new Date(date).getDay()];
+
+  let parsedDate: Date;
+
+  if (typeof date === "string") {
+    // Handle date-only strings as local dates, not UTC.
+    const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+    if (match) {
+      const [, year, month, day] = match;
+      parsedDate = new Date(Number(year), Number(month) - 1, Number(day));
+    } else {
+      parsedDate = new Date(date);
+    }
+  } else {
+    parsedDate = date;
+  }
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    throw new Error("Invalid date provided");
+  }
+
+  return days[parsedDate.getDay()];
 }
 
-export function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+//to display doctor appointment fee in INR
+export function formatCurrency(amount: number | string): string {
+  const value = Number(amount);
+
+  if (!Number.isFinite(value)) {
+    return "₹0.00";
+  }
+
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 }

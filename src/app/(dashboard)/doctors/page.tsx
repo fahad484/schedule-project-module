@@ -26,6 +26,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getInitials } from "@/lib/utils";
 import type { DoctorListItem, Specialty } from "@/types";
 
+import { formatCurrency } from "@/lib/utils";
+
 export default function DoctorsPage() {
   const [doctors, setDoctors] = React.useState<DoctorListItem[]>([]);
   const [specialties, setSpecialties] = React.useState<Specialty[]>([]);
@@ -218,7 +220,8 @@ export default function DoctorsPage() {
                 <div className="flex items-center justify-between pt-1">
                   <span className="text-xs text-muted-foreground">Consultation Fee</span>
                   <span className="font-bold text-base text-foreground">
-                    ${Number(doctor.consultationFee).toFixed(2)}
+                    {/* ${Number(doctor.consultationFee).toFixed(2)} */}
+                    {formatCurrency(doctor.consultationFee)}
                   </span>
                 </div>
               </CardContent>

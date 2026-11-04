@@ -23,7 +23,8 @@ export const userRoleEnum = pgEnum("user_role", [
   "admin",
 ]);
 
-export const appointmentStatusEnum = pgEnum("appointment_status", [
+export const appointmentStatusEnum = pgEnum("appointment_status", [ 
+  "pending_payment",
   "scheduled",
   "confirmed",
   "completed",
@@ -384,3 +385,40 @@ export const notificationRelations = relations(notification, ({ one }) => ({
     references: [user.id],
   }),
 }));
+// ----------payment gateway -----------------------------------
+export const paymentStatusEnum = pgEnum("payment_status", [
+  "pending",
+  "paid",
+  "failed",
+  "refunded",
+]);
+
+export const payment = pgTable(
+  "payment",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    appointmentId: uuid("appointment_id")
+      .notNull()
+      .references(() => appointment.id, { onDelete: "cascade" }),
+
+    razorpayOrderId: varchar("razorpay_order_id", { length: 255 })
+      .notNull()
+      .unique(),
+
+    razorpayPaymentId: varchar("razorpay_payment_id", { length: 255 })
+      .unique(),
+
+    razorpaySignature: varchar("razorpay_signature", { length: 500 }),
+
+    amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+
+    status: paymentStatusEnum("status").default("pending").notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .notNull(),
+  }
+);

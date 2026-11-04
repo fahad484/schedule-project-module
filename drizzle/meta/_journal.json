@@ -15,6 +15,13 @@
       "when": 1793634654157,
       "tag": "0001_allow_cancelled_slot_rebooking",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793708496748,
+      "tag": "0002_lame_albert_cleary",
+      "breakpoints": true
     }
   ]
 }
